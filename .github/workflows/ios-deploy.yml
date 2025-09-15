@@ -1,0 +1,39 @@
+name: iOS Build & Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Ruby (for Fastlane)
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+
+      - name: Install dependencies
+        run: |
+          gem install bundler:2.3.26
+          gem install fastlane
+
+      - name: Build and upload to TestFlight
+        run: |
+          fastlane pilot upload \
+            --username "$APPLE_ID" \
+            --app_identifier "$APP_IDENTIFIER" \
+            --team_id "$TEAM_ID" \
+            --apple_id "$APPLE_ID" \
+            --ipa ./build/MyFirstiOSApp.ipa
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
+          TEAM_ID: ${{ secrets.TEAM_ID }}
+          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+
