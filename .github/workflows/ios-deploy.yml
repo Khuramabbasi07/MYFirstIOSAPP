@@ -1,52 +1,22 @@
-name: iOS Build and Deploy
+name: macOS Runner Test
 
 on:
   push:
     branches:
-      - master
-  pull_request:
+      - main
 
 jobs:
-  build:
+  test-macos:
     runs-on: macos-latest
-
     steps:
-      # Step 1: Checkout repo
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Show macOS version
+        run: sw_vers
 
-      # Step 2: Setup Xcode
-      - name: Set up Xcode
-        run: sudo xcode-select -s /Applications/Xcode.app
+      - name: Show current directory
+        run: pwd
 
-      # Step 3: Install dependencies (agar CocoaPods use kar rahe ho)
-      - name: Install dependencies
-        run: |
-          cd MyFirstiOSApp
-          pod install --repo-update || true
+      - name: List files
+        run: ls -la
 
-      # Step 4: Build iOS app
-      - name: Build app
-        run: |
-          xcodebuild \
-            -workspace MyFirstiOSApp.xcworkspace \
-            -scheme MyFirstiOSApp \
-            -sdk iphoneos \
-            -configuration Release \
-            -archivePath build/MyFirstiOSApp.xcarchive archive
-
-      # Step 5: Export IPA
-      - name: Export IPA
-        run: |
-          xcodebuild -exportArchive \
-            -archivePath build/MyFirstiOSApp.xcarchive \
-            -exportOptionsPlist MyFirstiOSApp/Info.plist \
-            -exportPath build
-
-      # ✅ Step 6: Upload IPA with latest v4
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios-app
-          path: build/*.ipa
-
+      - name: Confirm runner working
+        run: echo "✅ macOS runner is active and your workflow is running, Khuram bhai!"
