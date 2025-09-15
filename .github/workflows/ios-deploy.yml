@@ -1,4 +1,4 @@
-name: macOS Runner Test
+name: iOS Build (MyFirstiOSApp)
 
 on:
   push:
@@ -6,17 +6,36 @@ on:
       - main
 
 jobs:
-  test-macos:
+  build-ios:
     runs-on: macos-latest
+
     steps:
-      - name: Show macOS version
-        run: sw_vers
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Show current directory
-        run: pwd
+      - name: Set up Xcode
+        run: |
+          xcodebuild -version
+          xcode-select -p
 
-      - name: List files
-        run: ls -la
+      - name: Build iOS app
+        run: |
+          xcodebuild \
+            -scheme MyFirstiOSApp \
+            -sdk iphoneos \
+            -configuration Release \
+            clean build \
+            CODE_SIGNING_ALLOWED=NO
 
-      - name: Confirm runner working
-        run: echo "✅ macOS runner is active and your workflow is running, Khuram bhai!"
+      - name: Create IPA file
+        run: |
+          mkdir -p build
+          xcodebuild \
+            -scheme MyFirstiOSApp \
+            -sdk iphoneos \
+            -configuration Release \
+            -archivePath build/MyFirstiOSApp.xcarchive \
+            archive CODE_SIGNING_ALLOWED=NO
+
+          xcodebuild -exportArchive \
+            -archivePath build/
